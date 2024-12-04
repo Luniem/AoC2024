@@ -21,3 +21,5 @@ My programming list consists of:
 I got the most knowledge in C#, Java- and Typescript but want to use this year as a incentive to work with other languages as well.
 
 ![Picture of ChatGPT-prompt](gpt_prompt.png)
+
+Webpage used for fortune-wheel: https://wheelofnames.com/
