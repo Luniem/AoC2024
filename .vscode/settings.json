@@ -3,5 +3,7 @@
         "*.tcc": "cpp",
         "fstream": "cpp",
         "ostream": "cpp"
-    }
+    },
+    "prettier.tabWidth": 4,
+    "prettier.printWidth": 180
 }
