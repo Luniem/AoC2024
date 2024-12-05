@@ -5,13 +5,13 @@
 #include <inttypes.h>
 
 typedef struct {
-    int16_t number;
-    int16_t rightAppearances;
-} orderNumber;
+    int16_t leftNumber;
+    int16_t rightNumber;
+} orderRule;
 
-int findIndexOrderNumber(orderNumber *array, int length, int value) {
+int findIndexOrderNumber(orderRule *array, int length, int16_t leftNumber, int16_t rightNumber) {
     for (int i = 0; i < length; i++) {
-        if (array[i].number == value) {
+        if (array[i].leftNumber == leftNumber && array[i].rightNumber == rightNumber) {
             return i;
         }
     }
@@ -19,27 +19,16 @@ int findIndexOrderNumber(orderNumber *array, int length, int value) {
     return -1;
 }
 
-int findAppearances(int16_t *array, int length, int value) {
-    int appearances = 0;
-
-    for (int i = 0; i < length; i++) {
-        if (array[i] == value) {
-            appearances++;
-        }
-    }
-
-    return appearances;
-}
-
 // bubble sort through list
-void sortOrderArray(orderNumber *array, int length) {
+void sortBasedOnOrderRules(int16_t *array, int length, orderRule *orderArray, int orderArraySize) {
     for (int i = length - 1; i >= 0; i--)
     {
         for (int j = 0; j < i; j++)
         {
-            if (array[j].rightAppearances > array[j + 1].rightAppearances)
+            int currIndex = findIndexOrderNumber(orderArray, orderArraySize, array[j + 1], array[j]);
+            if (currIndex >= 0)
             {
-                orderNumber temp = array[j];
+                int16_t temp = array[j];
                 array[j] = array[j + 1];
                 array[j + 1] = temp;
             }
@@ -47,26 +36,21 @@ void sortOrderArray(orderNumber *array, int length) {
     }
 }
 
-int main()
-{
-    FILE* file = fopen("testInput.txt", "r");
+// find solution based on input file
+int findSolution(char *inputFile, bool solveSecondStar){
+    FILE* file = fopen(inputFile, "r");
 
-    // char array for line
-    char line[100];
-
-    int currArraySize = 0;
-    int16_t *leftNumberArray = (int16_t *)malloc(currArraySize * sizeof(int16_t));
-    int16_t *rightNumberArray = (int16_t *)malloc(currArraySize * sizeof(int16_t));
-
-    long orderArraySize = 0;
-    orderNumber *orderArray = (orderNumber *)malloc(orderArraySize * sizeof(orderNumber));
-
-    int firstSolution = 0;
+    int solution = 0;
 
     // file will be null if it cannot be opened
     if (file != NULL) {
+        // buffer for line
+        char line[100];
+
+        long orderArraySize = 0;
+        orderRule *orderArray = (orderRule *)malloc(orderArraySize * sizeof(orderRule));
         
-        bool stillOrderingRules = true; 
+        bool stillProcessingOrderRules = true; 
 
         while (fgets(line, sizeof(line), file)) {
             // remove newline character
@@ -74,45 +58,33 @@ int main()
 
             // if first character is string-terminator, then it is an empty line
             if (line[0] == '\0') {
-                stillOrderingRules = false;
+                stillProcessingOrderRules = false;
+                continue;
+            } 
+            
+            if(stillProcessingOrderRules) {
+                // order rules
+                char *leftNumber, *rightNumber;
+    
+                // split by seperator
+                leftNumber = strtok(line, "|");
+                rightNumber = strtok(NULL, "|");
 
-                for (int leftIndex = 0; leftIndex < currArraySize; leftIndex++) {
-                    int16_t currNumber = leftNumberArray[leftIndex];
-
-                    bool found = findIndexOrderNumber(orderArray, orderArraySize, currNumber) != -1;
-
-                    if (!found) {
-                        orderArray = (orderNumber *)realloc(orderArray, (++orderArraySize) * sizeof(orderNumber));
-
-                        orderArray[orderArraySize - 1].number = currNumber;
-                        orderArray[orderArraySize - 1].rightAppearances = findAppearances(rightNumberArray, currArraySize, currNumber);
-                    }
+                if(leftNumber == NULL || rightNumber == NULL) {
+                    printf("Invalid order rule!\n");
+                    return 1;
                 }
 
-                sortOrderArray(orderArray, orderArraySize);
-            } else if(stillOrderingRules) {
-                // order rules
-                char numberOne[3];
-                numberOne[0] = line[0];
-                numberOne[1] = line[1];
-                numberOne[2] = '\0';
+                int16_t numberOneInt = atoi(leftNumber);
+                int16_t numberTwoInt = atoi(rightNumber);
 
-                char numberTwo[3];
-                numberTwo[0] = line[3];
-                numberTwo[1] = line[4];
-                numberTwo[2] = '\0';
+                orderArray = (orderRule *)realloc(orderArray, (++orderArraySize) * sizeof(orderRule));
+                orderArray[orderArraySize - 1].leftNumber = numberOneInt;
+                orderArray[orderArraySize - 1].rightNumber = numberTwoInt;
 
-                int16_t numberOneInt = atoi(numberOne);
-                int16_t numberTwoInt = atoi(numberTwo);
-
-                leftNumberArray = (int16_t *)realloc(leftNumberArray, (++currArraySize) * sizeof(int16_t));
-                rightNumberArray = (int16_t *)realloc(rightNumberArray, (currArraySize) * sizeof(int16_t));
-
-                leftNumberArray[currArraySize - 1] = numberOneInt;
-                rightNumberArray[currArraySize - 1] = numberTwoInt;
             } else {
                 int numberArraySize = 0;
-                int16_t *numberArray = (int16_t *)malloc(currArraySize * sizeof(int16_t));
+                int16_t *numberArray = (int16_t *)malloc(numberArraySize * sizeof(int16_t));
 
                 for (int i = 0; i < strlen(line); i += 3) {
                     char number[3];
@@ -125,29 +97,32 @@ int main()
                     numberArray[numberArraySize - 1] = numberInt;
                 }
 
-                int prevIndex = -1;
                 bool isCorrect = true;
 
-                for (int i = 0; i < numberArraySize; i++) {
-                    int currNumber = numberArray[i];
-                    int currIndex = findIndexOrderNumber(orderArray, numberArraySize, currNumber);
+                for (int i = 0; i < numberArraySize - 1; i++) {
+                    int16_t leftNumber = numberArray[i];
+                    int16_t rightNumber = numberArray[i + 1];
+                    int currIndex = findIndexOrderNumber(orderArray, orderArraySize, rightNumber, leftNumber);
 
-                    if (currIndex >= 0 && currIndex < prevIndex) {
+                    if (currIndex >= 0) {
                         isCorrect = false;
-                        printf("Order is incorrect!\n");
                         break;
                     }
-
-                    prevIndex = currIndex;
                 }
 
-                if (isCorrect) {
-                    firstSolution++;
+                if((!solveSecondStar && isCorrect) || (solveSecondStar && !isCorrect)) {
+                    if(solveSecondStar) {
+                        sortBasedOnOrderRules(numberArray, numberArraySize, orderArray, orderArraySize);
+                    }
+
+                    solution += numberArray[numberArraySize / 2];
                 }
 
                 free(numberArray);
             }
         }
+
+        free(orderArray);
 
         // close file
         fclose(file);
@@ -156,7 +131,14 @@ int main()
         return 1;
     }
 
-    printf("First solution: %d\n", firstSolution);
+    return solution;
+}
 
-    return 0;
+int main()
+{
+    char *inputFile = "input.txt";
+    int firstSolution = findSolution(inputFile, false);
+    int secondSolution = findSolution(inputFile, true);
+    printf("First solution: %d\n", firstSolution);
+    printf("Second solution: %d\n", secondSolution);
 }
