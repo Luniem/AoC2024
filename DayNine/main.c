@@ -3,11 +3,11 @@
 #include <inttypes.h>
 #include <string.h>
 
-// TODO: perhaps 32 bit is not enough here?
 typedef struct {
-    uint32_t start;
-    uint32_t end;
-} Range;
+    uint16_t start;
+    uint16_t end;
+    uint8_t id;
+} FileRange;
 
 int main() {
     FILE* file = fopen("./input.txt", "r");
@@ -22,16 +22,27 @@ int main() {
         // read line into buffer
         fgets(line, sizeof(line), file);
 
-        uint64_t sum = 0;
-        for(int i = 0; i < strlen(line); i++) {
-            printf("Char: %c\n", line[i]);
-            int number = strtol(line[i]);
-            printf("Number: %d\n", number);
+        int rangesSize = 0;
+        FileRange *ranges = (FileRange *)malloc(rangesSize * sizeof(FileRange));
 
-            sum = sum + number;
+        int currentIndex = 0;
+        for(int i = 0; i < strlen(line); i++) {
+            printf("Index: %d\n", i);
+            int length = line[i] - '0';
+            if(i % 2 == 0) {
+                // even -- file
+                printf("Even %d\n", rangesSize);
+
+                ranges = (FileRange *)realloc(ranges, sizeof(FileRange) * ++rangesSize);
+                printf("after malloc");
+                ranges[currentIndex].start = currentIndex;
+                ranges[currentIndex].end = length - 1;
+                ranges[currentIndex].id = rangesSize - 1;
+            }
+            currentIndex += length;
         }
 
-        printf("Number: %" PRIu64 "\n", sum);
+        printf("Ranges: %d\n", rangesSize);
 
         // close file
         fclose(file);
