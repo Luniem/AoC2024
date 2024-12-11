@@ -4,102 +4,114 @@
 #include <string.h>
 
 typedef struct {
-    uint16_t start;
-    uint16_t end;
-    uint32_t id;
+    uint32_t start;
+    uint32_t end;
+    uint16_t id;
 } FileRange;
 
 int calcSolution(int index, int id) {
-    printf("Index: %d, ID: %d\n", index, id);
+    // printf("Index: %d, ID: %d\n", index, id);
     return index * id;
 }
 
 int main() {
     FILE* file = fopen("./input.txt", "r");
 
-    int solution = 0;
+    uint64_t solution = 0;
 
     // file will be null if it cannot be opened
     if (file != NULL) {
         // buffer for line
-        char line[20001];
+        char line[30001];
 
         // read line into buffer
         fgets(line, sizeof(line), file);
 
         int currentIndex = 0;
-        int rangesSize = 0;
-        FileRange *ranges = (FileRange *)malloc(rangesSize * sizeof(FileRange));
+        int fileRangeSize = 0;
+        FileRange *fileRanges = (FileRange *)malloc(fileRangeSize * sizeof(FileRange));
+
+        int spaceRangeSize = 0;
+        FileRange *spaceRanges = (FileRange *)malloc(spaceRangeSize * sizeof(FileRange));
         
         for(int i = 0; i < strlen(line); i++) {
             int length = line[i] - '0';
+            if(length > 0) {
+
             if(i % 2 == 0) {
                 // even number - it is a file
-                ranges = (FileRange *)realloc(ranges, sizeof(FileRange) * ++rangesSize);
+                fileRanges = (FileRange *)realloc(fileRanges, sizeof(FileRange) * ++fileRangeSize);
 
-                ranges[rangesSize - 1].start = currentIndex;
-                ranges[rangesSize - 1].end = currentIndex + length - 1;
-                ranges[rangesSize - 1].id = rangesSize - 1;
+                fileRanges[fileRangeSize - 1].start = currentIndex;
+                fileRanges[fileRangeSize - 1].end = currentIndex + length - 1;
+                fileRanges[fileRangeSize - 1].id = fileRangeSize - 1;
+            } else {
+
+                // odd number - its empty space
+                spaceRanges = (FileRange *)realloc(spaceRanges, sizeof(FileRange) * ++spaceRangeSize);
+
+                spaceRanges[spaceRangeSize - 1].start = currentIndex;
+                spaceRanges[spaceRangeSize - 1].end = currentIndex + length - 1;
+                // we dont need to care for id here
             }
 
+            }
             currentIndex += length;
         }
+        
+        // reorder elements to the right
+        // we start with the most right file and shift it into the most left places
+        // we then can just append it to the array
+        for (int i = fileRangeSize - 1; i >= 0; i--) {
+            if(spaceRanges[0].start < fileRanges[i].end) {
+                // check if there is free space to the left
+                int neededSpace = fileRanges[i].end - fileRanges[i].start + 1;
 
-        int lastUsedFreeIndex = ranges[0].end;
-
-        // go from behind 
-        for (int i = rangesSize - 1; i >= 0; i--)
-        {
-            if(lastUsedFreeIndex > ranges[i].end) {
-                // already completely placed
-                // we dont need to move and just need to add
-                for(int j = ranges[i].start; j <= ranges[i].end; j++) {
-                    solution += calcSolution(j, ranges[i].id);
-                }
-            }else {
-                // we can shift it into another place
-                int spaceLeftToPlace = ranges[i].end - ranges[i].start + 1;
-                // check if we still have to place something
-                while(spaceLeftToPlace > 0){
-                    // search how much free space until next file
-                    for(int x = 0; x < rangesSize; x++) {
-
-
-                        if(ranges[x].start > lastUsedFreeIndex) {
-                            if(ranges[x].id != ranges[i].id) {
-
-                                // go until next file
-                                for (int j = lastUsedFreeIndex + 1; j < ranges[x].start && spaceLeftToPlace > 0; j++)
-                                {
-                                    solution += calcSolution(j, ranges[i].id);
-                                    spaceLeftToPlace--;
-                                    lastUsedFreeIndex = j;
-                                }
-
-                                // set last used free index to the end of the file
-                                if(spaceLeftToPlace > 0) {
-                                    lastUsedFreeIndex = ranges[x].end;
-                                }
-                            } else {
-
-                                for(int j = lastUsedFreeIndex + 1; j <= lastUsedFreeIndex + spaceLeftToPlace + 1 && spaceLeftToPlace > 0; j++) {
-                                    solution += calcSolution(j, ranges[i].id);
-                                    spaceLeftToPlace--;
-                                    lastUsedFreeIndex = j;
-                                }
-                            }
-                        }
+                // we do it as long as we still need more space
+                while (neededSpace > 0) {
+                    if(spaceRanges[0].start > fileRanges[i].end) {
+                        break;
                     }
 
-                }
+                    // find first free space
+                    int spaceStart = spaceRanges[0].start;
+                    int spaceEnd = spaceRanges[0].end;
 
-                // remove out of list
-                ranges[i].start = -1;
-                ranges[i].end = -1;
+                    // calculate how much space we can use
+                    int spaceSize = spaceEnd - spaceStart + 1;
+
+                    // create new file range that uses all the space needed/possible
+                    int usingSpace = neededSpace > spaceSize ? spaceSize : neededSpace;
+                    fileRanges = (FileRange *)realloc(fileRanges, sizeof(FileRange) * ++fileRangeSize);
+                    fileRanges[fileRangeSize-1].id = fileRanges[i].id;
+                    fileRanges[fileRangeSize-1].start = spaceStart;
+                    fileRanges[fileRangeSize-1].end = spaceStart + usingSpace - 1;
+
+                    // push start of file-range by the amount of used space
+                    fileRanges[i].end -= usingSpace;
+
+                    // subtract available space from needed space
+                    neededSpace -= usingSpace;
+
+                    // remove space range from array if it is fully used else just adjust the start
+                    if (usingSpace == spaceSize) {
+                        for (int j = 0; j < spaceRangeSize - 1; j++) {
+                            spaceRanges[j] = spaceRanges[j + 1];
+                        }
+                        spaceRangeSize--;
+                    } else {
+                        spaceRanges[0].start += usingSpace;
+                    }
+                }
             }
         }
 
-    printf("%d\n", solution);
+        // loop over all file ranges and calculate the solution
+        for (int i = 0; i < fileRangeSize; i++) {
+            for (int j = fileRanges[i].start; j <= fileRanges[i].end; j++) {
+                solution += calcSolution(j, fileRanges[i].id);
+            }
+        }
 
         // close file
         fclose(file);
@@ -108,5 +120,7 @@ int main() {
         return 1;
     }
 
+
+    printf("Solution: %lu\n", solution);
     return 0;
 }
