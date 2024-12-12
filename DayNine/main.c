@@ -63,47 +63,69 @@ int main() {
         // we start with the most right file and shift it into the most left places
         // we then can just append it to the array
         for (int i = fileRangeSize - 1; i >= 0; i--) {
-            if(spaceRanges[0].start < fileRanges[i].end) {
-                // check if there is free space to the left
-                int neededSpace = fileRanges[i].end - fileRanges[i].start + 1;
+            int neededSpace = fileRanges[i].end - fileRanges[i].start + 1;
 
-                // we do it as long as we still need more space
-                while (neededSpace > 0) {
-                    if(spaceRanges[0].start > fileRanges[i].end) {
-                        break;
-                    }
+            for(int j = 0; j < spaceRangeSize; j++) {
+                // check if we are already to the right 
+                if (fileRanges[i].end < spaceRanges[j].start){
+                    break;
+                }
 
-                    // find first free space
-                    int spaceStart = spaceRanges[0].start;
-                    int spaceEnd = spaceRanges[0].end;
+                // check how much free space
+                int spaceSize = spaceRanges[j].end - spaceRanges[j].start + 1;
 
-                    // calculate how much space we can use
-                    int spaceSize = spaceEnd - spaceStart + 1;
+                // check if we fit
+                if(neededSpace <= spaceSize) {
+                    // we fit
+                    fileRanges[i].start = spaceRanges[j].start;
+                    fileRanges[i].end = spaceRanges[j].start + neededSpace - 1;
 
-                    // create new file range that uses all the space needed/possible
-                    int usingSpace = neededSpace > spaceSize ? spaceSize : neededSpace;
-                    fileRanges = (FileRange *)realloc(fileRanges, sizeof(FileRange) * ++fileRangeSize);
-                    fileRanges[fileRangeSize-1].id = fileRanges[i].id;
-                    fileRanges[fileRangeSize-1].start = spaceStart;
-                    fileRanges[fileRangeSize-1].end = spaceStart + usingSpace - 1;
-
-                    // push start of file-range by the amount of used space
-                    fileRanges[i].end -= usingSpace;
-
-                    // subtract available space from needed space
-                    neededSpace -= usingSpace;
-
-                    // remove space range from array if it is fully used else just adjust the start
-                    if (usingSpace == spaceSize) {
-                        for (int j = 0; j < spaceRangeSize - 1; j++) {
-                            spaceRanges[j] = spaceRanges[j + 1];
-                        }
-                        spaceRangeSize--;
-                    } else {
-                        spaceRanges[0].start += usingSpace;
-                    }
+                    // adjust space range
+                    spaceRanges[j].start += neededSpace;
+                    break;
                 }
             }
+            // if(spaceRanges[0].start < fileRanges[i].end) {
+            //     // check if there is free space to the left
+            //     int neededSpace = fileRanges[i].end - fileRanges[i].start + 1;
+
+            //     // we do it as long as we still need more space
+            //     while (neededSpace > 0) {
+            //         if(spaceRanges[0].start > fileRanges[i].end) {
+            //             break;
+            //         }
+
+            //         // find first free space
+            //         int spaceStart = spaceRanges[0].start;
+            //         int spaceEnd = spaceRanges[0].end;
+
+            //         // calculate how much space we can use
+            //         int spaceSize = spaceEnd - spaceStart + 1;
+
+            //         // create new file range that uses all the space needed/possible
+            //         int usingSpace = neededSpace > spaceSize ? spaceSize : neededSpace;
+            //         fileRanges = (FileRange *)realloc(fileRanges, sizeof(FileRange) * ++fileRangeSize);
+            //         fileRanges[fileRangeSize-1].id = fileRanges[i].id;
+            //         fileRanges[fileRangeSize-1].start = spaceStart;
+            //         fileRanges[fileRangeSize-1].end = spaceStart + usingSpace - 1;
+
+            //         // push start of file-range by the amount of used space
+            //         fileRanges[i].end -= usingSpace;
+
+            //         // subtract available space from needed space
+            //         neededSpace -= usingSpace;
+
+            //         // remove space range from array if it is fully used else just adjust the start
+            //         if (usingSpace == spaceSize) {
+            //             for (int j = 0; j < spaceRangeSize - 1; j++) {
+            //                 spaceRanges[j] = spaceRanges[j + 1];
+            //             }
+            //             spaceRangeSize--;
+            //         } else {
+            //             spaceRanges[0].start += usingSpace;
+            //         }
+            //     }
+            // }
         }
 
         // loop over all file ranges and calculate the solution
@@ -121,6 +143,6 @@ int main() {
     }
 
 
-    printf("Solution: %lu\n", solution);
+    printf("Second Solution: %lu\n", solution);
     return 0;
 }
