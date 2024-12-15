@@ -51,7 +51,7 @@ int main() {
     inputFile.close();
 
     // make sure lists have the same length
-    if (leftList.size() == rightList.size()) {
+    if (leftList.size() != rightList.size()) {
         cout << "Lists are not the same length" << endl;
         return 1;
     }

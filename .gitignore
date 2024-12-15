@@ -1,3 +1,5 @@
 target
 main
 node_modules
+bin
+obj
