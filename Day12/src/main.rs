@@ -1,6 +1,6 @@
 use std::{collections::HashSet, fs};
 
-const FILE_INPUT: &str = "/home/nico/projects/AoC2024/DayTwelve/input.txt";
+const FILE_INPUT: &str = "/home/nico/projects/AoC2024/Day12/input.txt";
 
 const NEIGHBORS: [(i32, i32); 4] = [
     (0, 1), // right

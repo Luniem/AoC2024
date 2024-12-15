@@ -4,7 +4,7 @@ import time
 
 clear = lambda: os.system('clear')
 
-file = open('/home/nico/projects/AoC2024/DayFourteen/input.txt', 'r')
+file = open('/home/nico/projects/AoC2024/Day14/input.txt', 'r')
 lines = file.read().splitlines()
 
 wide = 101

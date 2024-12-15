@@ -1,6 +1,6 @@
 target
 main
-main.js
+main
 node_modules
 bin
 obj

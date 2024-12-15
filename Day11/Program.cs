@@ -1,6 +1,6 @@
 ﻿using stonesCalc;
 
-string input = @"/home/nico/projects/AoC2024/DayEleven/input.txt";
+string input = @"/home/nico/projects/AoC2024/Day11/input.txt";
 string numbersString = File.ReadAllText(input);
 
 StonesCalc stonesCalc = new StonesCalc(numbersString);

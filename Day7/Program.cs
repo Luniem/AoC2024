@@ -1,7 +1,7 @@
 ﻿using operators;
 
 // read input and create equation-objects
-string inputFile = @"/home/nico/projects/AoC2024/DaySeven/input.txt";
+string inputFile = @"/home/nico/projects/AoC2024/Day7/input.txt";
 List<Equation> equations = InputReadFunctions.ReadAndCreateEquationsFromLines(inputFile);
 
 long firstSolution = 0;
@@ -57,40 +57,4 @@ bool recursiveCalculate(Equation equation, IEnumerable<Operator> operators) {
     }
 
     return false;
-    
-
-    // Equation plusEquation = new Equation(equation.TestValue, new List<long>(equation.Operands), equation.CurrentValue);
-    // plusEquation.AddValue();
-
-    // // make copf of equation 2
-    // Equation concatEquation = new Equation(equation.TestValue, new List<long>(equation.Operands), equation.CurrentValue);
-    // concatEquation.concatinateValue();
-
-    // // multiply value
-    // equation.MultiplyValue();
-
-    // // check if equation is finished
-    // if(equation.isFinished()){
-    //     if(equation.resolvesCorrectly()){
-    //         return true;
-    //     }
-
-    //     if(plusEquation.resolvesCorrectly()){
-    //         return true;
-    //     }
-
-    //     if(concatEquation.resolvesCorrectly()){
-    //         return true;
-    //     }
-
-    //     return false;
-    // }
-    
-    // //check if is too high at all possible equations already
-    // if(equation.CurrentValue > equation.TestValue && plusEquation.CurrentValue > plusEquation.TestValue && concatEquation.CurrentValue > concatEquation.TestValue){
-    //     return false;
-    // }
-
-    // // recursive call
-    // return checkPossibleEquation(equation) || checkPossibleEquation(plusEquation) || checkPossibleEquation(concatEquation);
 }

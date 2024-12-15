@@ -1,4 +1,4 @@
-file = open('/home/nico/projects/AoC2024/DayTwo/input.txt', 'r')
+file = open('/home/nico/projects/AoC2024/Day2/input.txt', 'r')
 lines = file.read().splitlines()
 
 # FIRST SOLUTION
