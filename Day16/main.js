@@ -47,7 +47,7 @@ function checkNextOptions(currentX, currentY, directionX, directionY, currentCos
     visitedTilesPath += currentKey + '->';
 
     // check if this is a valid node
-    if (!grid.has(currentKey)) {
+    if (!grid.has(currentKey) || currentCost > leastCost) {
         return Number.POSITIVE_INFINITY;
     }
 
@@ -61,7 +61,6 @@ function checkNextOptions(currentX, currentY, directionX, directionY, currentCos
         const correctedPath = visitedTilesPath.substring(0, visitedTilesPath.length - 2);
 
         if (currentCost < leastCost) {
-            console.log(currentCost);
             leastCost = currentCost;
             endRoutes = [correctedPath];
         } else if (currentCost === leastCost) {
