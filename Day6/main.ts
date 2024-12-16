@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 
-const lines = fs.readFileSync('/home/nico/projects/AoC2024/DaySix/input.txt', 'utf-8').split('\n');
+const lines = fs.readFileSync('/home/nico/projects/AoC2024/Day6/input.txt', 'utf-8').split('\n');
 
 let startPos: [number, number] = [0, 0];
 const obstacles: [number, number][] = [];
@@ -35,7 +35,6 @@ const startDate = new Date();
 
 // add start location
 visitedPlaces.add(getLocationKey(startPos));
-let secondSolution = 0;
 let currPosition = startPos;
 
 function wouldEndUpInLoop(obs: [number, number][], places: Set<string>, startDirection: number, startPosition: [number, number]): boolean {
@@ -59,11 +58,9 @@ function wouldEndUpInLoop(obs: [number, number][], places: Set<string>, startDir
 
         places.add(getLocationWithDirectionKey(startPosition, startDirection));
     }
-
-    return false;
 }
 
-function test(obstacles: [number, number][], currPosition: [number, number], currentDirection: number) {
+function process_map(obstacles: [number, number][], currPosition: [number, number], currentDirection: number) {
     while (!isOutOfBounds) {
         while (
             obstacles.some((obstacle) => obstacle[0] === currPosition[0] + directions[currentDirection][0] && obstacle[1] === currPosition[1] + directions[currentDirection][1])
@@ -81,19 +78,21 @@ function test(obstacles: [number, number][], currPosition: [number, number], cur
 
         // check what happens if place a obstacle in front
         const newObs: [number, number] = [currPosition[0] + directions[currentDirection][0], currPosition[1] + directions[currentDirection][1]]; // right in front of us
+        // check if this obstacle is already there as a real obstacle
         if (wouldEndUpInLoop([...obstacles, newObs], new Set(visitedPlacesWithLocation), currentDirection, [...currPosition])) {
             bolders.add(getLocationKey(newObs));
         }
     }
 }
 
-test(obstacles, currPosition, currentDirection);
-
-console.log(visitedPlaces.size);
-
+// process the map
+process_map(obstacles, currPosition, currentDirection);
 const endDate = new Date();
-console.log(endDate.getTime() - startDate.getTime());
-console.log('finished', bolders.size);
+
+console.log('First solution: ', visitedPlaces.size);
+console.log('Second solution: ', bolders.size);
+
+console.log('Needed Time: ', endDate.getTime() - startDate.getTime());
 
 function getLocationKey(location: [number, number]): string {
     return `${location[0]}-${location[1]}`;

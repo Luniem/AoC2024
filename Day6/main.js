@@ -10,7 +10,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs = require("fs");
-var lines = fs.readFileSync('/home/nico/projects/AoC2024/DaySix/input.txt', 'utf-8').split('\n');
+var lines = fs.readFileSync('/home/nico/projects/AoC2024/Day6/input.txt', 'utf-8').split('\n');
 var startPos = [0, 0];
 var obstacles = [];
 for (var y = 0; y < lines.length; y++) {
@@ -39,7 +39,6 @@ var bolders = new Set();
 var startDate = new Date();
 // add start location
 visitedPlaces.add(getLocationKey(startPos));
-var secondSolution = 0;
 var currPosition = startPos;
 function wouldEndUpInLoop(obs, places, startDirection, startPosition) {
     var isOutOfBounds = false;
@@ -57,9 +56,8 @@ function wouldEndUpInLoop(obs, places, startDirection, startPosition) {
         }
         places.add(getLocationWithDirectionKey(startPosition, startDirection));
     }
-    return false;
 }
-function test(obstacles, currPosition, currentDirection) {
+function process_map(obstacles, currPosition, currentDirection) {
     while (!isOutOfBounds) {
         while (obstacles.some(function (obstacle) { return obstacle[0] === currPosition[0] + directions[currentDirection][0] && obstacle[1] === currPosition[1] + directions[currentDirection][1]; })) {
             currentDirection = (currentDirection + 1) % 4;
@@ -72,16 +70,18 @@ function test(obstacles, currPosition, currentDirection) {
         }
         // check what happens if place a obstacle in front
         var newObs = [currPosition[0] + directions[currentDirection][0], currPosition[1] + directions[currentDirection][1]]; // right in front of us
+        // check if this obstacle is already there as a real obstacle
         if (wouldEndUpInLoop(__spreadArray(__spreadArray([], obstacles, true), [newObs], false), new Set(visitedPlacesWithLocation), currentDirection, __spreadArray([], currPosition, true))) {
             bolders.add(getLocationKey(newObs));
         }
     }
 }
-test(obstacles, currPosition, currentDirection);
-console.log(visitedPlaces.size);
+// process the map
+process_map(obstacles, currPosition, currentDirection);
 var endDate = new Date();
-console.log(endDate.getTime() - startDate.getTime());
-console.log('finished', bolders.size);
+console.log('First solution: ', visitedPlaces.size);
+console.log('Second solution: ', bolders.size);
+console.log('Needed Time: ', endDate.getTime() - startDate.getTime());
 function getLocationKey(location) {
     return "".concat(location[0], "-").concat(location[1]);
 }
