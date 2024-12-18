@@ -9,16 +9,22 @@ export class CPU {
 
     public output: number[] = [];
 
-    constructor(registerA: number, registerB: number, registerC: number, program: number[], private haltOnDifferentOutput: boolean = false) {
+    constructor(registerA: number, registerB: number, registerC: number, program: number[]) {
         this.program = program;
         this.registerA = registerA;
         this.registerB = registerB;
         this.registerC = registerC;
     }
 
+    public run(): void {
+        while (!this.isProgramHalting()) {
+            this.nextInstruction();
+        }
+    }
+
     nextInstruction(): void {
         if (this.isProgramHalting()) {
-            throw new Error('Program has already halted');
+            throw new Error("Program has already halted");
         }
 
         const instruction = this.program[this.instructionPointer];
@@ -48,19 +54,15 @@ export class CPU {
                 this.cdv();
                 break;
             default:
-                throw new Error('Invalid instruction');
+                throw new Error("Invalid instruction");
         }
     }
 
     public getOutput(): string {
-        return this.output.join(',');
+        return this.output.join(",");
     }
 
     public isProgramHalting(): boolean {
-        if (this.haltOnDifferentOutput && !this.isOutputStillOnTrack()) {
-            return true;
-        }
-
         return this.instructionPointer >= this.program.length;
     }
 
@@ -92,7 +94,7 @@ export class CPU {
     }
 
     private bxc() {
-        this.registerB = this.registerB ^ this.registerC;
+        this.registerB = parseInt((BigInt(this.registerB) ^ BigInt(this.registerC)).toString());
 
         this.moveInstructionPointer();
     }
@@ -134,7 +136,7 @@ export class CPU {
             case 6:
                 return this.registerC;
             default:
-                throw new Error('Reserved Combo Operand.');
+                throw new Error("Reserved Combo Operand.");
         }
     }
 
@@ -146,21 +148,7 @@ export class CPU {
         this.instructionPointer = newIndex;
     }
 
-    public isOutputEqualProgram(): boolean {
-        if (this.output.length !== this.program.length) {
-            return false;
-        }
-
-        return this.isOutputStillOnTrack();
-    }
-
-    private isOutputStillOnTrack(): boolean {
-        for (let i = 0; i < this.output.length; i++) {
-            if (this.output[i] !== this.program[i]) {
-                return false;
-            }
-        }
-
-        return true;
+    public isOutputEqProgram(index: number): boolean {
+        return this.output[index] === this.program[index];
     }
 }
