@@ -5,11 +5,11 @@
 #include <inttypes.h>
 using namespace std;
 
-uint64_t canBeConstructed(string leftDesign, vector<string> &towelList, unordered_map<string, uint64_t> &solutions) {
+uint64_t combinationsCanBeConstructed(string leftDesign, vector<string> &towelList, unordered_map<string, uint64_t> &solutions) {
     if(leftDesign.empty()) {
         return 1;
     }
-    // check in set if we already have the solution for this string and return the 
+
     if (solutions.find(leftDesign) != solutions.end()) {
         return solutions[leftDesign];
     }
@@ -22,7 +22,7 @@ uint64_t canBeConstructed(string leftDesign, vector<string> &towelList, unordere
 
         if(leftDesign.find(towel) == 0) {
             string newDesign = leftDesign.substr(towel.size());
-            count += canBeConstructed(newDesign, towelList, solutions);
+            count += combinationsCanBeConstructed(newDesign, towelList, solutions);
         }
     }
 
@@ -73,9 +73,13 @@ int main() {
     for (int i = 0; i < designList.size(); i++) {
         string design = designList[i];
 
-        uint64_t test = canBeConstructed(design, towelList, solutions);
-        secondSolution += test;
-        cout << test << endl;
+        uint64_t combinations = combinationsCanBeConstructed(design, towelList, solutions);
+
+        if(combinations) {
+            firstSolution++;
+        }
+
+        secondSolution += combinations;
     }
 
     cout << "Solution first Star: " << firstSolution << endl;
