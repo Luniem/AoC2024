@@ -2,19 +2,20 @@
 #include <fstream> 
 #include <vector>
 #include <unordered_map>
+#include <inttypes.h>
 using namespace std;
 
-int canBeConstructed(string leftDesign, vector<string> &towelList, unordered_map<string, int> &solutions) {
+uint64_t canBeConstructed(string leftDesign, vector<string> &towelList, unordered_map<string, uint64_t> &solutions) {
+    if(leftDesign.empty()) {
+        return 1;
+    }
     // check in set if we already have the solution for this string and return the 
     if (solutions.find(leftDesign) != solutions.end()) {
         return solutions[leftDesign];
     }
 
-    if(leftDesign.empty()) {
-        return 1;
-    }
 
-    int count = 0;
+    uint64_t count = 0;
 
     for (int i = 0; i < towelList.size(); i++) {
         string towel = towelList[i];
@@ -33,7 +34,7 @@ int canBeConstructed(string leftDesign, vector<string> &towelList, unordered_map
 
 int main() {
     int firstSolution = 0;
-    int secondSolution = 0;
+    uint64_t secondSolution = 0;
 
     string line;
     ifstream inputFile("./input.txt");
@@ -67,12 +68,14 @@ int main() {
     // close file
     inputFile.close();
 
-    unordered_map<string, int> solutions = unordered_map<string, int>();
+    unordered_map<string, uint64_t> solutions = unordered_map<string, uint64_t>();
     // we have every towel as single but w. so we just check if we can create the w somehow
     for (int i = 0; i < designList.size(); i++) {
         string design = designList[i];
 
-        secondSolution += canBeConstructed(design, towelList, solutions);
+        uint64_t test = canBeConstructed(design, towelList, solutions);
+        secondSolution += test;
+        cout << test << endl;
     }
 
     cout << "Solution first Star: " << firstSolution << endl;
